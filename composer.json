@@ -1,0 +1,25 @@
+{
+    "name": "wearelighthouse/presshard",
+    "description": "WordPress with a Vengeance",
+    "keywords": ["wordpress"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christy Quinn",
+            "email": "christy@wearelighthouse.com"
+        }
+    ],
+    "require": {
+        "webdevstudios/cmb2": "v2.2.5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "PressHard\\": "src"
+        },
+        "files": [
+            "src/Core/functions.php",
+            "vendor/webdevstudios/cmb2/init.php"
+        ]
+    }
+}
