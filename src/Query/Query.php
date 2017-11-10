@@ -2,8 +2,6 @@
 
 namespace PressHard\Query;
 
-use PressHard\PostType\PolicyPostType;
-
 class Query
 {
     /**

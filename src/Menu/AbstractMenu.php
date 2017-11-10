@@ -2,8 +2,8 @@
 
 namespace PressHard\Menu;
 
-use PressHard\Page\AbstractPage;
 use PressHard\Core\WPEntity;
+use PressHard\Page\AbstractPage;
 
 abstract class AbstractMenu extends WPEntity
 {
