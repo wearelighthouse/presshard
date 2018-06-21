@@ -1,6 +1,6 @@
 <?php
 
-namespace PressHard\Utility;
+namespace PressHard\Core;
 
 class Singleton
 {

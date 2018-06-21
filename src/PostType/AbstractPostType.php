@@ -45,6 +45,8 @@ abstract class AbstractPostType extends WPEntity
      */
     public function register()
     {
+        parent::register();
+
         if (!post_type_exists($this->getType())) {
             register_post_type($this->getType(), [
                 'labels' => [
@@ -73,7 +75,5 @@ abstract class AbstractPostType extends WPEntity
                 ]
             ]);
         }
-
-        parent::register();
     }
 }

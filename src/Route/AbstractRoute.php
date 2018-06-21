@@ -2,7 +2,7 @@
 
 namespace PressHard\Route;
 
-use PressHard\Utility\Singleton;
+use PressHard\Core\Singleton;
 
 use Exception;
 

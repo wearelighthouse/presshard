@@ -33,22 +33,24 @@ abstract class AbstractMenu extends WPEntity
     /**
      * @return void
      */
-    public function register()
+    public function create()
     {
-        if (!is_nav_menu($this->getName())) {
-            $menuId = wp_create_nav_menu($this->getName());
-            $this->createItems($menuId, $this->getTree());
-
-            register_nav_menu($this->getLocation(), $this->getName());
-
-            $locations = get_nav_menu_locations();
-            foreach (array_keys($locations) as $id) {
-                if ($id === $this->getLocation()) {
-                    $locations[$id] = $menuId;
-                }
-            }
-            set_theme_mod('nav_menu_locations', $locations);
+        if (is_nav_menu($this->getName())) {
+            wp_delete_nav_menu($this->getName());
         }
+
+        $menuId = wp_create_nav_menu($this->getName());
+        $this->createItems($menuId, $this->getTree());
+
+        register_nav_menu($this->getLocation(), $this->getName());
+
+        $locations = get_nav_menu_locations();
+        foreach (array_keys($locations) as $id) {
+            if ($id === $this->getLocation()) {
+                $locations[$id] = $menuId;
+            }
+        }
+        set_theme_mod('nav_menu_locations', $locations);
     }
 
     /**

@@ -10,36 +10,16 @@ abstract class WPEntity extends Singleton
     abstract public function getType();
 
     /**
-     * @return string
+     * @return void
      */
-    public function getMetaKey($id)
+    public function create()
     {
-        return $this->getPrefix() . $id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return sprintf(
-            '_%s_',
-            $this->getType()
-        );
     }
 
     /**
      * @return void
      */
     public function register()
-    {
-        $this->addMetaBoxActions();
-    }
-
-    /**
-     * @return void
-     */
-    public function addMetaBoxActions()
     {
         add_action('cmb2_admin_init', [$this, 'registerMetaBoxes']);
     }
@@ -89,6 +69,33 @@ abstract class WPEntity extends Singleton
                 'name' => $name,
                 'type' => $type
             ] + $options
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMetaValue($post, $id)
+    {
+        return $post->{$this->getMetaKey($id)};
+    }
+
+    /**
+     * @return string
+     */
+    public function getMetaKey($id)
+    {
+        return $this->getPrefix() . $id;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPrefix()
+    {
+        return sprintf(
+            '_%s_',
+            $this->getType()
         );
     }
 }

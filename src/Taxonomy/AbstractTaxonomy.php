@@ -47,6 +47,29 @@ abstract class AbstractTaxonomy extends WPEntity
     /**
      * @return void
      */
+    public function create()
+    {
+        foreach ($this->terms as $term) {
+            $termEntity = get_term_by(
+                'name',
+                $term['name'],
+                $this->getType(),
+                ARRAY_A
+            );
+
+            if (!$termEntity) {
+                wp_insert_term(
+                    $term['name'],
+                    $this->getType(),
+                    ['slug' => $term['slug']]
+                );
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
     public function register()
     {
         if (!taxonomy_exists($this->getType())) {
@@ -100,43 +123,5 @@ abstract class AbstractTaxonomy extends WPEntity
                 $args
             );
         }
-    }
-
-    /**
-     * @return void
-     */
-    public function insertTerms()
-    {
-        foreach ($this->terms as $term) {
-            $termEntity = get_term_by(
-                'name',
-                $term['name'],
-                $this->getType(),
-                ARRAY_A
-            );
-
-            if (!$termEntity) {
-                wp_insert_term(
-                    $term['name'],
-                    $this->getType(),
-                    ['slug' => $term['slug']]
-                );
-            }
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public function getTermSlugRegex()
-    {
-        $termSlugs = array_map(function ($term) {
-            return $term['slug'];
-        }, $this->terms);
-
-        return sprintf(
-            '(%s)',
-            implode('|', $termSlugs)
-        );
     }
 }

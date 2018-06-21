@@ -7,11 +7,13 @@ class Query
     /**
      * @return array
      */
-    public static function all($args = [])
+    public static function all($args = [], $isMainLoop = false)
     {
-        $args = [
-            'posts_per_page' => -1
-        ] + $args;
+        $args = $args + ['posts_per_page' => -1];
+
+        if ($isMainLoop) {
+            return query_posts($args);
+        }
 
         return get_posts($args);
     }
@@ -21,9 +23,9 @@ class Query
      */
     public static function list($args = [])
     {
-        $posts = Query::all(['orderby' => 'title']);
+        $posts = static::all($args + ['orderby' => 'title']);
 
-        return self::generateList($posts);
+        return static::generateList($posts);
     }
 
     /**

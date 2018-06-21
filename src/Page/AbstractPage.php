@@ -1,18 +1,13 @@
 <?php
 
-namespace PressHard\Page;
+namespace BBPA\Page;
 
-use PressHard\Core\WPEntity;
+use BBPA\Core\WPEntity;
 
 use Exception;
 
 abstract class AbstractPage extends WPEntity
 {
-    /**
-     * @var int
-     */
-    public $postId;
-
     /**
      * @return string
      */
@@ -21,22 +16,42 @@ abstract class AbstractPage extends WPEntity
     /**
      * @return string
      */
-    abstract public function getTitle();
+    abstract protected function getTitle();
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return 'page';
+    }
 
     /**
      * @return array
      */
-    public function getChildPages()
+    protected function getChildPages()
     {
         return [];
     }
 
     /**
-     * @return \PressHard\Page\AbstractPage
+     * @return \BBPA\Page\AbstractPage
      */
-    public function getParentPage()
+    protected function getParentPage()
     {
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPrefix()
+    {
+        return sprintf(
+            '_%s_%s_',
+            str_replace('-', '_', $this->getSlug()),
+            $this->getType()
+        );
     }
 
     /**
@@ -56,23 +71,24 @@ abstract class AbstractPage extends WPEntity
     }
 
     /**
-     * @return string
+     * @return void
      */
-    public function getPrefix()
+    public function create()
     {
-        return sprintf(
-            '_%s_%s_',
-            str_replace('-', '_', $this->getSlug()),
-            $this->getType()
-        );
-    }
+        $this->createPost();
 
-    /**
-     * @return string
-     */
-    public function getType()
-    {
-        return 'page';
+        foreach ($this->getChildPages() as $childPage) {
+            if (!$childPage->getParentPage() ||
+                get_class($childPage->getParentPage()) !== get_class($this)
+            ) {
+                throw new Exception(sprintf(
+                    'getParentPage must return an instance of %s',
+                    get_class($this)
+                ));
+            }
+
+            $childPage->create();
+        }
     }
 
     /**
@@ -80,20 +96,6 @@ abstract class AbstractPage extends WPEntity
      */
     public function register()
     {
-        $page = get_page_by_path($this->getPath());
-
-        $this->postId = $page
-            ? $page->ID
-            : wp_insert_post([
-                'post_title' => $this->getTitle(),
-                'post_name' => $this->getSlug(),
-                'post_type' => 'page',
-                'post_status' => 'publish',
-                'post_parent' => $this->getParentPage()
-                    ? $this->getParentPage()->postId
-                    : 0
-            ]);
-
         parent::register();
 
         foreach ($this->getChildPages() as $childPage) {
@@ -120,5 +122,37 @@ abstract class AbstractPage extends WPEntity
             $title,
             ['show_on' => ['key' => 'id', 'value' => [$this->postId]]] + $options
         );
+    }
+
+    /**
+     * @return int
+     */
+    public function createPost()
+    {
+        $postId = get_option($this->getPrefix() . 'id', false);
+
+        if (!$postId) {
+            $page = get_page_by_path($this->getPath());
+
+            if ($page) {
+                $postId = $page->ID;
+
+                update_option($this->getPrefix() . 'id', $postId);
+            }
+        }
+
+        if (!$postId) {
+            $postId = wp_insert_post([
+                'post_title' => $this->getTitle(),
+                'post_name' => $this->getSlug(),
+                'post_type' => 'page',
+                'post_status' => 'publish',
+                'post_parent' => $this->getParentPage()
+                    ? $this->getParentPage()->createPost()
+                    : 0
+            ]);
+        }
+
+        return $postId;
     }
 }
